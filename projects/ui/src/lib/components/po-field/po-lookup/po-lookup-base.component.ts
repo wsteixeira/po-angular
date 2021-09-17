@@ -244,6 +244,38 @@ export abstract class PoLookupBaseComponent
   @Input('p-infinite-scroll') @InputBoolean() infiniteScroll: boolean = false;
 
   /**
+   * @optional
+   *
+   * @description
+   *
+   * Ativa a funcionalidade de multipla seleção.
+   *
+   * @default `false`
+   */
+  @Input('p-multiple') @InputBoolean() multiple: boolean = false;
+
+  /**
+   * @optional
+   *
+   * @description
+   *
+   * Define que a altura do componente será auto ajustável, possuindo uma altura minima porém a altura máxima será de acordo
+   * com o número de itens selecionados e a extensão dos mesmos, mantendo-os sempre visíveis.
+   *
+   * > O valor padrão será `true` quando houver serviço (`p-filter-service`).
+   *
+   * @default `false`
+   */
+  @Input('p-auto-height') @InputBoolean() set autoHeight(value: boolean) {
+    this._autoHeight = value;
+    this.autoHeightInitialValue = value;
+  }
+
+  get autoHeight(): boolean {
+    return this._autoHeight;
+  }
+
+  /**
    * Evento será disparado quando ocorrer algum erro na requisição de busca do item.
    * Será passado por parâmetro o objeto de erro retornado.
    */
@@ -285,6 +317,8 @@ export abstract class PoLookupBaseComponent
   private _noAutocomplete: boolean;
   private _placeholder: string = '';
   private _required?: boolean = false;
+  private _autoHeight: boolean = false;
+  private autoHeightInitialValue: boolean;
 
   private onChangePropagate: any = null;
   private validatorChange: any;
@@ -433,8 +467,9 @@ export abstract class PoLookupBaseComponent
 
   // Seleciona o valor do model.
   selectValue(valueSelected: any) {
-    this.valueToModel = valueSelected[this.fieldValue];
-
+    this.valueToModel = Array.isArray(valueSelected)
+      ? valueSelected.map(v => v[this.fieldValue])
+      : valueSelected[this.fieldValue];
     this.callOnChange(this.valueToModel);
     this.selected.emit(valueSelected);
   }
@@ -486,7 +521,8 @@ export abstract class PoLookupBaseComponent
           element => {
             if (element) {
               this.oldValue = element[this.fieldLabel];
-              this.selectValue(element);
+
+              this.selectValue(this.multiple ? [element] : element);
               this.setViewValue(this.getFormattedLabel(element), element);
             } else {
               this.cleanModel();
@@ -513,6 +549,15 @@ export abstract class PoLookupBaseComponent
   }
 
   writeValue(value: any): void {
+    if (Array.isArray(value)) {
+      this.valueToModel = value.map(v => v[this.fieldValue]);
+      const v = value.map(v => {
+        return this.getFormattedLabel(v);
+      });
+      this.setViewValue(v, v);
+      // return;
+    }
+
     if (value && value instanceof Object) {
       // Esta condição é executada quando é retornado o objeto selecionado do componente Po Lookup Modal.
       this.oldValue = value[this.fieldLabel];

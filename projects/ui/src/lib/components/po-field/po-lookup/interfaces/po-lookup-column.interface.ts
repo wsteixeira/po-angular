@@ -32,6 +32,8 @@ export interface PoLookupColumn {
    */
   label?: string;
 
+  value?: string | number;
+
   /** Nome identificador da coluna. */
   property?: string;
 

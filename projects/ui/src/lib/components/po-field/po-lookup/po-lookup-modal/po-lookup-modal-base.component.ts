@@ -1,4 +1,4 @@
-import { EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, Directive } from '@angular/core';
+import { EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, Directive, ChangeDetectorRef } from '@angular/core';
 
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -22,6 +22,7 @@ import { PoLookupResponseApi } from '../interfaces/po-lookup-response-api.interf
 import { PoDisclaimer } from './../../../po-disclaimer/po-disclaimer.interface';
 import { PoDisclaimerGroup } from './../../../po-disclaimer-group/po-disclaimer-group.interface';
 import { PoLookupAdvancedFilter } from '../interfaces/po-lookup-advanced-filter.interface';
+import { PoTableComponent } from './../../../po-table/po-table.component';
 
 export const poLookupLiteralsDefault = {
   en: <PoLookupLiterals>{
@@ -94,6 +95,7 @@ export const poLookupLiteralsDefault = {
 @Directive()
 export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
   @ViewChild(PoModalComponent, { static: true }) poModal: PoModalComponent;
+  @ViewChild(PoTableComponent, { static: true }) poTable: PoTableComponent;
 
   /**
    * Objeto com os campos que serão criados no busca avançada.
@@ -126,8 +128,14 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
   /** Se verdadeiro, ativa a funcionalidade de scroll infinito para a tabela exibida no retorno da consulta. */
   @Input('p-infinite-scroll') @InputBoolean() infiniteScroll: boolean = false;
 
+  /** Se verdadeiro, ativa a funcionalidade de multipla seleção. */
+  @Input('p-multiple') @InputBoolean() multiple: boolean = false;
+
   /** Evento utilizado ao selecionar um registro da tabela. */
   @Output('p-change-model') model: EventEmitter<any> = new EventEmitter<any>();
+
+  /** Classe de serviço com items selecionados */
+  @Input('p-selected-items') selectedItems: Array<any>;
 
   hasNext = true;
   isLoading = false;
@@ -144,6 +152,7 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
   isAdvancedFilter = false;
   primaryActionAdvancedFilter!: PoModalAction;
   secondaryActionAdvancedFilter!: PoModalAction;
+  selecteds: Array<any> = [];
 
   protected sort: PoTableColumnSort;
 
@@ -158,12 +167,17 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
   // eslint-disable-next-line @typescript-eslint/member-ordering
   primaryAction: PoModalAction = {
     action: () => {
-      this.items.forEach(element => {
-        if (element['$selected']) {
-          this.model.emit(element);
-          this.poModal.close();
-        }
-      });
+      if (this.multiple) {
+        this.model.emit(this.items.filter(item => item['$selected']));
+        this.poModal.close();
+      } else {
+        this.items.forEach(element => {
+          if (element['$selected']) {
+            this.model.emit(element);
+            this.poModal.close();
+          }
+        });
+      }
     },
     label: this.literals.modalPrimaryActionLabel
   };
@@ -209,7 +223,7 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
     return this._title;
   }
 
-  constructor(languageService: PoLanguageService) {
+  constructor(languageService: PoLanguageService, private changeDetector: ChangeDetectorRef) {
     this.language = languageService.getShortLanguage();
   }
 
@@ -403,6 +417,9 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
     this.items = data?.items ?? [];
     this.hasNext = data?.hasNext ?? false;
     this.isLoading = false;
+    this.changeDetector.detectChanges();
+    this.setSelectedItems();
+    this.setDisclaimersItems();
   }
 
   private setTableLiterals() {
@@ -412,6 +429,25 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
       'loadingData': this.literals.modalTableLoadingData,
       'loadMoreData': this.literals.modalTableLoadMoreData
     };
+  }
+
+  //Método responsável por selecionar as linhas quando abre o modal.
+  setSelectedItems() {
+    if (this.selectedItems && this.selectedItems.length) {
+      this.selectedItems.forEach(item => {
+        this.poTable.selectRowItem(item);
+      });
+    }
+  }
+
+  //Método responsável por selecionar criar os disclaimers quando abre o modal.
+  setDisclaimersItems() {
+    if (this.selectedItems && this.selectedItems.length) {
+      this.selectedItems.forEach(selected => {
+        const disclaimer = this.items.find(item => item.value === selected);
+        this.selecteds = [...this.selecteds, disclaimer];
+      });
+    }
   }
 
   // Método responsável por abrir a modal de busca das informações.
