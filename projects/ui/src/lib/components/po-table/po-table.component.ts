@@ -338,6 +338,34 @@ export class PoTableComponent extends PoTableBaseComponent implements AfterViewI
     }
   }
 
+  /**
+   * Desmarca uma linha que está selecionada.
+   */
+  unselectRowItem(valueRow) {
+    this.items.forEach(item => {
+      if (item.value === valueRow) {
+        item.$selected = false;
+      }
+    });
+  }
+
+  /**
+   * Seleciona uma linha do 'po-table'.
+   */
+  selectRowItem(valueRow) {
+    this.items.forEach(item => {
+      if (item.value === valueRow) {
+        item.$selected = true;
+      }
+    });
+
+    if (this.items.every(item => item.$selected)) {
+      this.selectAll = true;
+    } else {
+      this.selectAll = null;
+    }
+  }
+
   formatNumber(value: any, format: string) {
     if (!format) {
       return value;
