@@ -269,6 +269,7 @@ describe('PoDatepickerRangeBaseComponent:', () => {
 
         spyOn(component, <any>'convertPatternDateFormat');
         spyOn(component, <any>'requiredDateRangeFailed');
+        spyOn(component, <any>'verifyValidDate');
         spyOn(component, <any>'dateRangeFormatFailed');
         spyOn(component, <any>'dateRangeFailed');
 
@@ -301,12 +302,13 @@ describe('PoDatepickerRangeBaseComponent:', () => {
         expect(component.disabled).toBe(expectedValue);
       });
 
-      it(`should call 'dateRangeObjectFailed', set 'errorMessage' as 'literals.invalidFormat'
+      it(`should call 'dateRangeFormatFailed', set 'errorMessage' as 'literals.invalidFormat'
         and return 'invalidDateRangeError'.`, () => {
         component.literals = poDatepickerRangeLiteralsDefault.pt;
 
         spyOn(component, <any>'dateRangeFormatFailed').and.returnValue(true);
         spyOn(component, <any>'dateRangeObjectFailed').and.returnValue(false);
+        spyOn(component, <any>'verifyValidDate').and.returnValue(true);
         spyOn(component, <any>'requiredDateRangeFailed');
         spyOn(component, <any>'dateRangeFailed');
 
@@ -321,7 +323,9 @@ describe('PoDatepickerRangeBaseComponent:', () => {
         and return 'invalidDateRangeError'.`, () => {
         component.literals = poDatepickerRangeLiteralsDefault.pt;
 
+        spyOn(component, <any>'dateRangeFormatFailed').and.returnValue(false);
         spyOn(component, <any>'dateRangeObjectFailed').and.returnValue(true);
+        spyOn(component, <any>'verifyValidDate').and.returnValue(true);
         spyOn(component, <any>'requiredDateRangeFailed');
         spyOn(component, <any>'dateRangeFailed');
 
@@ -338,6 +342,7 @@ describe('PoDatepickerRangeBaseComponent:', () => {
 
         spyOn(component, <any>'dateRangeObjectFailed').and.returnValue(false);
         spyOn(component, <any>'dateRangeFailed').and.returnValue(true);
+        spyOn(component, <any>'verifyValidDate').and.returnValue(true);
         spyOn(component, <any>'requiredDateRangeFailed');
         spyOn(component, <any>'dateRangeFormatFailed');
 
@@ -354,6 +359,7 @@ describe('PoDatepickerRangeBaseComponent:', () => {
         const returnNull = null;
 
         spyOn(component, <any>'requiredDateRangeFailed').and.returnValue(spyOnReturns);
+        spyOn(component, <any>'verifyValidDate').and.returnValue(true);
         spyOn(component, <any>'dateRangeFormatFailed').and.returnValue(spyOnReturns);
         spyOn(component, <any>'dateRangeFailed').and.returnValue(spyOnReturns);
 
@@ -699,6 +705,32 @@ describe('PoDatepickerRangeBaseComponent:', () => {
       const date = '2018-10-25';
 
       expect(component['convertPatternDateFormat'](date)).toBe(date);
+    });
+    it(`verifyValidDate: should return false when the date is invalid isValidDateIso`, () => {
+      const date = '2021-09-32';
+
+      expect(component['verifyValidDate'](date)).toBe(false);
+    });
+    it(`verifyValidDate: should return false when the date is invalid isValidExtendedIso`, () => {
+      const date = '2021-02-32T10:11:05-00:00';
+
+      expect(component['verifyValidDate'](date)).toBe(false);
+    });
+    it(`should call 'verifyValidDate', set 'errorMessage' as 'literals.invalidFormat'`, () => {
+      component.literals = poDatepickerRangeLiteralsDefault.pt;
+
+      spyOn(component, <any>'dateRangeObjectFailed').and.returnValue(false);
+      spyOn(component, <any>'dateRangeFailed').and.returnValue(false);
+      spyOn(component, <any>'verifyValidDate').and.returnValue(false);
+      spyOn(component, <any>'requiredDateRangeFailed');
+      spyOn(component, <any>'dateRangeFormatFailed');
+
+      const value = { value: { start: '2021-02-31', end: '' } };
+
+      component.validate(<any>value);
+
+      expect(component['verifyValidDate']).toHaveBeenCalled();
+      expect(component.errorMessage).toEqual(component.literals.invalidDate);
     });
   });
 });

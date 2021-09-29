@@ -5,7 +5,9 @@ import {
   patternFailed,
   minFailed,
   maxFailed,
-  dateFailed
+  dateFailed,
+  isValidDateIso,
+  isValidExtendedIso
 } from './validators';
 
 describe('requiredFailed: ', () => {
@@ -170,5 +172,23 @@ describe('Function dateFailed', () => {
 
   it('should be false', () => {
     expect(dateFailed(new Date().toString())).toBeFalsy();
+  });
+});
+
+describe('Function isValidDateIso', () => {
+  it('should return to be true', () => {
+    expect(isValidDateIso('2021-02-28')).toBeTruthy();
+  });
+  it('should return to be false,', () => {
+    expect(isValidDateIso('2021/02/31')).toBeFalsy();
+  });
+});
+
+describe('Function isValidExtendedIso', () => {
+  it('should return to be true', () => {
+    expect(isValidExtendedIso('2021-02-28T10:11:05-03:00')).toBeTruthy();
+  });
+  it('should return to be false,', () => {
+    expect(isValidExtendedIso('2021-02-32T10:11:05-00:00')).toBeFalsy();
   });
 });

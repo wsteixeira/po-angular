@@ -2,7 +2,7 @@ import { AbstractControl, ControlValueAccessor, ValidationErrors, Validator } fr
 import { EventEmitter, Input, Output, Directive } from '@angular/core';
 
 import { convertToBoolean } from './../../../utils/util';
-import { requiredFailed } from '../validators';
+import { dateFailed, isValidDateIso, isValidExtendedIso, requiredFailed } from '../validators';
 import { InputBoolean } from '../../../decorators';
 import { PoDateService } from './../../../services/po-date/po-date.service';
 import { PoLanguageService } from '../../../services/po-language/po-language.service';
@@ -356,6 +356,16 @@ export abstract class PoDatepickerRangeBaseComponent implements ControlValueAcce
       };
     }
 
+    if (!this.verifyValidDate(control.value)) {
+      this.errorMessage = this.literals.invalidDate;
+
+      return {
+        date: {
+          valid: false
+        }
+      };
+    }
+
     if (this.dateRangeObjectFailed(control.value) || this.dateRangeFormatFailed(startDate, endDate)) {
       this.errorMessage = this.literals.invalidFormat;
 
@@ -375,7 +385,6 @@ export abstract class PoDatepickerRangeBaseComponent implements ControlValueAcce
         }
       };
     }
-
     return null;
   }
 
@@ -456,6 +465,10 @@ export abstract class PoDatepickerRangeBaseComponent implements ControlValueAcce
       requiredFailed(this.required, this.disabled, startDate) &&
       requiredFailed(this.required, this.disabled, endDate)
     );
+  }
+
+  private verifyValidDate(date) {
+    return isValidDateIso(date) || isValidExtendedIso(date);
   }
 
   protected abstract resetDateRangeInputValidation(): void;

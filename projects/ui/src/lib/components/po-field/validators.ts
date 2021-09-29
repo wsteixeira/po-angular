@@ -44,3 +44,20 @@ export function maxFailed(max: number, value: number) {
 export function dateFailed(value: string) {
   return value && isNaN(Date.parse(value));
 }
+
+export function isValidDateIso(value: string) {
+  const dateRegex = new RegExp('^(?:[0-9])\\d{1}(?:[0-9])\\d{1}-' + '(?:0[1-9]|1[0-2])-' + '(?:0[1-9]|[12]\\d|3[01])$');
+  return dateRegex.test(value);
+}
+
+export function isValidExtendedIso(value) {
+  const isoRegex = new RegExp(
+    '^(?:[0-9])\\d{1}(?:[0-9])\\d{1}-' +
+      '(?:0[1-9]|1[0-2])-' +
+      '(?:0[1-9]|[12]\\d|3[01])' +
+      'T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:Z|-0[1-9]|-1\\d|-2[0-3]|' +
+      '-00:?(?:0[1-9]|[0-5]\\d)|\\+[01]\\d|\\+2[0-3])' +
+      '(?:|:?[0-5]\\d)$'
+  );
+  return isoRegex.test(value);
+}
