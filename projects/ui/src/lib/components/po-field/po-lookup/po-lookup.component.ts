@@ -96,7 +96,6 @@ export class PoLookupComponent extends PoLookupBaseComponent implements AfterVie
   initialized = false;
   timeoutResize;
   visibleElement = false;
-  isMultiple: boolean = false;
 
   disclaimers = [];
   visibleDisclaimers = [];
@@ -183,21 +182,20 @@ export class PoLookupComponent extends PoLookupBaseComponent implements AfterVie
 
             this.visibleDisclaimers = [...this.disclaimers];
             this.updateVisibleItems();
+            this.selectModel(selectedOptions);
+          } else {
+            this.selectModel(selectedOptions);
           }
-
-          this.selectModel(selectedOptions);
         });
       }
     }
   }
 
   setViewValue(value: any, object: any): void {
-    if (value) {
-      if (this.fieldFormat) {
-        this.setInputValueWipoieldFormat(object);
-      } else {
-        this.inputEl.nativeElement.value = this.valueToModel || this.valueToModel === 0 ? value : '';
-      }
+    if (this.fieldFormat) {
+      this.setInputValueWipoieldFormat(object);
+    } else if (value) {
+      this.inputEl.nativeElement.value = this.valueToModel || this.valueToModel === 0 ? value : '';
     }
   }
 
@@ -207,10 +205,10 @@ export class PoLookupComponent extends PoLookupBaseComponent implements AfterVie
 
   searchEvent() {
     this.onTouched?.();
-
     const value = this.getViewValue();
 
-    if (!value || this.disclaimers.length) {
+    if (this.disclaimers.length) {
+      console.log(this.disclaimers);
       return;
     }
 
@@ -241,10 +239,12 @@ export class PoLookupComponent extends PoLookupBaseComponent implements AfterVie
   }
 
   debounceResize() {
-    clearTimeout(this.timeoutResize);
-    this.timeoutResize = setTimeout(() => {
-      this.calculateVisibleItems();
-    }, 200);
+    if (!this.autoHeight) {
+      clearTimeout(this.timeoutResize);
+      this.timeoutResize = setTimeout(() => {
+        this.calculateVisibleItems();
+      }, 200);
+    }
   }
 
   getInputWidth() {

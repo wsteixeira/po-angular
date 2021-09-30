@@ -1,5 +1,5 @@
 <po-lookup
-  class="po-md-4"
+  class="po-md-6"
   name="lookup"
   [(ngModel)]="lookup"
   p-field-label="label"
@@ -10,6 +10,18 @@
   [p-multiple]="true"
 ></po-lookup>
 
-<p class="po-md-12">{{ lookup | json }}</p>
+<p class="po-md-12" style="min-height: 19px">{{ lookup | json }}</p>
 
-<po-multiselect class="po-md-12" name="multiselect" p-label="PO Multiselect" [p-options]="options"></po-multiselect>
+<po-lookup
+  class="po-md-6"
+  name="lookupSingle"
+  [(ngModel)]="lookupSingle"
+  p-field-label="label"
+  p-field-value="value"
+  p-filter-service="https://po-sample-api.herokuapp.com/v1/heroes"
+  p-label="PO Lookup"
+  [p-advanced-filters]="advancedFilters"
+  [p-multiple]="false"
+></po-lookup>
+
+<p class="po-md-12" style="min-height: 19px">{{ lookupSingle | json }}</p>

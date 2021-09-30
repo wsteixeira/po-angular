@@ -248,7 +248,7 @@ export abstract class PoLookupBaseComponent
    *
    * @description
    *
-   * Ativa a funcionalidade de multipla seleção.
+   * Ativa a funcionalidade de múltipla seleção, com isso o valor do campo passará a ser uma lista de valores, por exemplo: `[ 12345, 67890 ]`
    *
    * @default `false`
    */
@@ -305,6 +305,7 @@ export abstract class PoLookupBaseComponent
 
   protected getSubscription: Subscription;
   protected keysDescription: Array<any>;
+  protected value: Array<any>;
   protected oldValue: string = '';
   protected valueToModel;
   protected oldValueToModel = null;
@@ -318,8 +319,8 @@ export abstract class PoLookupBaseComponent
   private _placeholder: string = '';
   private _required?: boolean = false;
   private _autoHeight: boolean = false;
-  private autoHeightInitialValue: boolean;
 
+  private autoHeightInitialValue: boolean;
   private onChangePropagate: any = null;
   private validatorChange: any;
 
@@ -369,6 +370,7 @@ export abstract class PoLookupBaseComponent
    */
   @Input('p-filter-service') set filterService(filterService: PoLookupFilter | string) {
     this._filterService = filterService;
+    this.autoHeight = this.autoHeightInitialValue !== undefined ? this.autoHeightInitialValue : true;
     this.setService(this.filterService);
   }
 
@@ -521,8 +523,7 @@ export abstract class PoLookupBaseComponent
           element => {
             if (element) {
               this.oldValue = element[this.fieldLabel];
-
-              this.selectValue(this.multiple ? [element] : element);
+              this.selectValue(element);
               this.setViewValue(this.getFormattedLabel(element), element);
             } else {
               this.cleanModel();
@@ -550,12 +551,9 @@ export abstract class PoLookupBaseComponent
 
   writeValue(value: any): void {
     if (Array.isArray(value)) {
+      this.value = value.map(v => this.getFormattedLabel(v));
       this.valueToModel = value.map(v => v[this.fieldValue]);
-      const v = value.map(v => {
-        return this.getFormattedLabel(v);
-      });
-      this.setViewValue(v, v);
-      // return;
+      this.setViewValue(this.value, this.value);
     }
 
     if (value && value instanceof Object) {

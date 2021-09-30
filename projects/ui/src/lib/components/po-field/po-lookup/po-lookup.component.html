@@ -1,5 +1,5 @@
 <po-field-container [p-label]="label" [p-help]="help" [p-optional]="!required && optional">
-  <div class="po-field-container-content" *ngIf="!disclaimers.length; else disclaimerTemplate">
+  <div class="po-field-container-content" *ngIf="!disclaimers?.length; else disclaimersTemplate">
     <input
       #inp
       class="po-input po-input-icon-right"
@@ -27,7 +27,7 @@
   <po-field-container-bottom></po-field-container-bottom>
 </po-field-container>
 
-<ng-template #disclaimerTemplate>
+<ng-template #disclaimersTemplate>
   <div class="po-field-container-content">
     <div
       #inp

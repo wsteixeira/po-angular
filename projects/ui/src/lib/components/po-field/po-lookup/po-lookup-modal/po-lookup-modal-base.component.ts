@@ -325,6 +325,25 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
       );
   }
 
+  //Método responsável por selecionar as linhas quando abre o modal.
+  setSelectedItems() {
+    if (this.selectedItems && this.selectedItems.length) {
+      this.selectedItems.forEach(item => {
+        this.poTable.selectRowItem(item);
+      });
+    }
+  }
+
+  //Método responsável por selecionar criar os disclaimers quando abre o modal.
+  setDisclaimersItems() {
+    if (this.selectedItems && this.selectedItems.length) {
+      this.selectedItems.forEach(selected => {
+        const disclaimer = this.items.find(item => item.value === selected);
+        this.selecteds = [...this.selecteds, disclaimer];
+      });
+    }
+  }
+
   private setAdvancedFilterModalProperties() {
     this.advancedFilterModalTitle = this.literals.modalAdvancedSearchTitle;
 
@@ -429,25 +448,6 @@ export abstract class PoLookupModalBaseComponent implements OnDestroy, OnInit {
       'loadingData': this.literals.modalTableLoadingData,
       'loadMoreData': this.literals.modalTableLoadMoreData
     };
-  }
-
-  //Método responsável por selecionar as linhas quando abre o modal.
-  setSelectedItems() {
-    if (this.selectedItems && this.selectedItems.length) {
-      this.selectedItems.forEach(item => {
-        this.poTable.selectRowItem(item);
-      });
-    }
-  }
-
-  //Método responsável por selecionar criar os disclaimers quando abre o modal.
-  setDisclaimersItems() {
-    if (this.selectedItems && this.selectedItems.length) {
-      this.selectedItems.forEach(selected => {
-        const disclaimer = this.items.find(item => item.value === selected);
-        this.selecteds = [...this.selecteds, disclaimer];
-      });
-    }
   }
 
   // Método responsável por abrir a modal de busca das informações.

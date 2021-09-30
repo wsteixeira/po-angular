@@ -74,10 +74,10 @@ export class PoLookupModalComponent extends PoLookupModalBaseComponent implement
   }
 
   onAllUnselected(items) {
-    this.poTable.unselectRows();
     items.forEach(item => {
       this.selecteds = this.selecteds.filter(itemSelected => itemSelected !== item);
     });
+    this.poTable.unselectRows();
     this.setTableHeight();
   }
 
