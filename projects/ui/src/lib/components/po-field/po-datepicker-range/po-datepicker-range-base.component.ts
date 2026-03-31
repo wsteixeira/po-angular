@@ -329,7 +329,7 @@ export abstract class PoDatepickerRangeBaseComponent implements ControlValueAcce
   private _initialSize?: string = undefined;
   private _placeholder: PoDatepickerRange = { start: '', end: '' };
 
-  private language;
+  private readonly language;
   private onChangeModel: any;
   private validatorChange: any;
   private subscription = new Subscription();
@@ -650,7 +650,7 @@ export abstract class PoDatepickerRangeBaseComponent implements ControlValueAcce
   constructor(
     protected changeDetector: ChangeDetectorRef,
     protected poDateService: PoDateService,
-    private languageService: PoLanguageService
+    private readonly languageService: PoLanguageService
   ) {
     this.language = languageService.getShortLanguage();
   }
